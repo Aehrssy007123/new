@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Water Availability & Drinking Water Facility — Demo</title>
+
+  <!-- Libraries -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+  <!-- HEADER -->
+  <header class="bg-blue-600 text-white p-4">
+    <h1 class="text-2xl font-bold">💧 Water Availability & Drinking Water Facility</h1>
+    <nav>
+      <a href="#map" class="mr-4">Map</a>
+      <a href="#dams" class="mr-4">Dam Levels</a>
+      <a href="#filtration" class="mr-4">Filtration</a>
+      <a href="#future" class="mr-4">Future</a>
+    </nav>
+  </header>
+
+  <!-- MAP SECTION -->
+  <section id="map" class="p-6">
+    <h2 class="text-xl font-bold mb-4">Water Availability Map</h2>
+    <div id="mapContainer" class="h-96 rounded-lg shadow"></div>
+  </section>
+
+  <!-- DAM LEVELS -->
+  <section id="dams" class="p-6 bg-white">
+    <h2 class="text-xl font-bold mb-4">Dam Water Levels</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <canvas id="dam1"></canvas>
+      <canvas id="dam2"></canvas>
+      <canvas id="dam3"></canvas>
+    </div>
+  </section>
+
+  <!-- FILTRATION -->
+  <section id="filtration" class="p-6">
+    <h2 class="text-xl font-bold mb-4">Filtration Process</h2>
+    <ol class="list-decimal ml-6">
+      <li>Coagulation & Flocculation</li>
+      <li>Sedimentation</li>
+      <li>Filtration</li>
+      <li>Disinfection</li>
+      <li>Storage</li>
+    </ol>
+  </section>
+
+  <!-- FUTURE -->
+  <section id="future" class="p-6 bg-white">
+    <h2 class="text-xl font-bold mb-4">Future Plans</h2>
+    <ul class="list-disc ml-6">
+      <li>AI-powered water prediction models</li>
+      <li>IoT sensors for real-time tracking</li>
+      <li>Blockchain-based water usage records</li>
+    </ul>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-blue-600 text-white p-4 text-center">
+    &copy; 2025 Water Availability Project
+  </footer>
+
+  <!-- CHATBOT WIDGET -->
+  <div id="chatbot" 
+       class="fixed bottom-4 right-4 w-80 bg-white shadow-xl rounded-2xl p-4 border border-gray-300">
+    <h3 class="text-lg font-bold mb-2">💧 WaterBot</h3>
+    <div id="chatlog" class="h-48 overflow-y-auto text-sm mb-2 border p-2 rounded bg-gray-50"></div>
+    <input id="chatinput" type="text" placeholder="Ask about water..." 
+           class="w-full border rounded p-2 text-sm">
+  </div>
+
+  <script>
+  // --- MAP INIT ---
+  const map = L.map("mapContainer").setView([20.5937, 78.9629], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors"
+  }).addTo(map);
+
+  // Sample markers
+  L.marker([19.076, 72.877]).addTo(map).bindPopup("Mumbai: Sufficient Water");
+  L.marker([28.704, 77.102]).addTo(map).bindPopup("Delhi: Moderate Supply");
+  L.marker([13.0827, 80.2707]).addTo(map).bindPopup("Chennai: Low Water");
+
+  // --- DAM LEVELS (Chart.js Doughnut) ---
+  function createDamChart(id, used, max) {
+    new Chart(document.getElementById(id), {
+      type: "doughnut",
+      data: {
+        labels: ["Used", "Remaining"],
+        datasets: [{
+          data: [used, max - used],
+          backgroundColor: ["#2563eb", "#93c5fd"]
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+  createDamChart("dam1", 70, 100);
+  createDamChart("dam2", 50, 100);
+  createDamChart("dam3", 90, 100);
+
+  // --- CHATBOT ---
+  const qa = {
+    "water availability": "We show water availability with map markers. Green = sufficient, Yellow = moderate, Red = low.",
+    "drinking water": "Our project tracks safe drinking water facilities and alerts in your area.",
+    "dam levels": "Check the Dam Levels section — gauges show current vs. max capacity.",
+    "emergency": "Emergency Help section lists tankers & nearby water plants.",
+    "filtration": "We explain the 7-step filtration process with images and details.",
+    "future": "Future plans include AI prediction models, IoT sensors, and blockchain water tracking."
+  };
+
+  const chatlog = document.getElementById("chatlog");
+  const chatinput = document.getElementById("chatinput");
+
+  chatinput.addEventListener("keypress", function(e) {
+    if (e.key === "Enter" && this.value.trim()) {
+      let question = this.value.toLowerCase();
+      let answer = "🤔 Sorry, I don’t have info on that. Try 'dam levels', 'emergency', or 'filtration'.";
+      for (let key in qa) {
+        if (question.includes(key)) { answer = qa[key]; break; }
+      }
+      chatlog.innerHTML += `<div><b>You:</b> ${this.value}</div>`;
+      chatlog.innerHTML += `<div><b>Bot:</b> ${answer}</div>`;
+      chatlog.scrollTop = chatlog.scrollHeight;
+      this.value = "";
+    }
+  });
+  </script>
+
+</body>
+</html>
